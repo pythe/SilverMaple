@@ -22,10 +22,21 @@ score text query =
             abbrev =
                 String.toLower query
         in
-            -- optimization: If scoreAll returns an empty array, return 0.0
+            -- optimization: If scoreAll returns an empty array, return 0.0 (necessary?)
             List.sum <| scoreAll text search abbrev -1 0 [] []
 
 
+{-| ScoreAll takes:
+  - string: The text you match against
+  - search: String.downcase string
+  - query: The string you are matching with
+  - searchIndex: The index in search you are currently matching against
+  - queryIndex: The index in query you are currently matching against
+  - scores: the score list for this (what scope?)
+  - allScores: accumulator for scores lists
+
+
+-}
 scoreAll : String -> String -> String -> Int -> Int -> List Float -> List Float -> List Float
 scoreAll string search query searchIndex queryIndex scores allScores =
     -- Save completed match scores at end of search
