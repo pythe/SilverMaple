@@ -4,7 +4,10 @@ module SilverMaple exposing (score)
 
 -}
 
+import Array
+import Char
 import String
+import List.Extra as List
 import Scores
 
 
@@ -49,17 +52,66 @@ scoreAll string search query searchIndex queryIndex scores allScores =
         -- perform matching
         let
             c =
-                case List.head <| String.toList query of
-                    Nothing ->
-                        '\x00'
+                query
+                    |> String.toList
+                    |> List.head
+                    |> Maybe.withDefault '\x00'
+                    |> String.fromChar
 
-                    Just char ->
-                        char
+            instances =
+                String.indexes c search
+
+            myScores =
+                instances
+                    |> List.map (whileMoreCharacterInstances searchIndex search string scores)
+                    |> List.transpose
+                    |> List.map (List.foldl1 max)
+                    |> List.map (Maybe.withDefault 0.0)
+
+            -- List Float (but currently is List (Maybe Float))
         in
-            -- cancel match if a character is missing
+            -- Make sure there's at least one instance of the character available, or return
             -- match all instances of the abbreviation char
             -- consume matched string and recurse
-            scoreAll string search query searchIndex (queryIndex + 1) scores allScores
+            scoreAll string search query searchIndex (queryIndex + 1) myScores allScores
+
+
+whileMoreCharacterInstances :
+    Int
+    -> String
+    -> String
+    -> List Float
+    -> Int
+    -> List Float
+whileMoreCharacterInstances scoreIndex search string scores index =
+    -- TODO count the index in question as a match
+    if (isNewWord string index) then
+        -- TODO count the space as a match
+        fillArray scores Scores.buffer (scoreIndex + 1) (index - 1)
+    else if (isUpperCase string index) then
+        fillArray scores Scores.buffer (scoreIndex + 1) index
+    else
+        fillArray scores Scores.noMatch (scoreIndex + 1) index
+
+
+isNewWord : String -> Int -> Bool
+isNewWord string index =
+    False
+
+
+isUpperCase : String -> Int -> Bool
+isUpperCase string index =
+    string
+        |> String.toList
+        |> Array.fromList
+        |> Array.get index
+        |> Maybe.withDefault '\x00'
+        |> Char.isUpper
+
+
+fillArray : List Float -> Float -> Int -> Int -> List Float
+fillArray scores value start end =
+    scores
 
 
 started : String -> String -> Bool
