@@ -3,6 +3,9 @@ elm-stuff/
 # elm-repl generated files
 repl-temp-*
 
+# node stuff
+node_modules/
+
 # =========================
 # Operating System Files
 # =========================

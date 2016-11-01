@@ -1,0 +1,14 @@
+{
+  "name": "SilverMaple",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/pythe/SilverMaple.git",
+    "type": "git"
+  },
+  "author": "Jeff Turley <pythe314@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "elm": "^0.17.1"
+  }
+}
