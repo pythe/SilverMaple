@@ -26,7 +26,10 @@ score text query =
                 String.toLower query
         in
             -- optimization: If scoreAll returns an empty array, return 0.0 (necessary?)
-            List.sum <| scoreAll text search abbrev -1 0 [] []
+            scoreAll text search abbrev -1 0 [] []
+                |> List.map List.sum
+                |> List.maximum
+                |> Maybe.withDefault 0.0
 
 
 {-| ScoreAll takes:
@@ -40,22 +43,22 @@ score text query =
 
 
 -}
-scoreAll : String -> String -> String -> Int -> Int -> List Float -> List Float -> List Float
+scoreAll : String -> String -> String -> Int -> Int -> List Float -> List (List Float) -> List (List Float)
 scoreAll string search query searchIndex queryIndex scores allScores =
     -- Save completed match scores at end of search
     if (queryIndex == String.length query) then
         -- add trailing score for the remainder of the match
         -- save score clone since reference is persisted in scores
         --return
-        []
+        allScores
     else
         -- perform matching
         let
             c =
                 query
-                    |> String.toList
-                    |> List.head
-                    |> Maybe.withDefault '\x00'
+                    |> String.uncons
+                    |> Maybe.withDefault ( '\x00', "" )
+                    |> fst
                     |> String.fromChar
 
             instances =
@@ -65,15 +68,13 @@ scoreAll string search query searchIndex queryIndex scores allScores =
                 instances
                     |> List.map (whileMoreCharacterInstances searchIndex search string scores)
                     |> List.transpose
-                    |> List.map (List.foldl1 max)
+                    |> List.map (List.maximum)
                     |> List.map (Maybe.withDefault 0.0)
-
-            -- List Float (but currently is List (Maybe Float))
         in
             -- Make sure there's at least one instance of the character available, or return
             -- match all instances of the abbreviation char
             -- consume matched string and recurse
-            scoreAll string search query searchIndex (queryIndex + 1) myScores allScores
+            scoreAll string search query searchIndex (queryIndex + 1) myScores (myScores :: allScores)
 
 
 whileMoreCharacterInstances :
@@ -111,7 +112,11 @@ isUpperCase string index =
 
 fillArray : List Float -> Float -> Int -> Int -> List Float
 fillArray scores value start end =
-    scores
+    List.concat
+        [ List.take start scores
+        , List.repeat (end - start) value
+        , List.drop end scores
+        ]
 
 
 started : String -> String -> Bool
@@ -123,7 +128,12 @@ started string abbr =
         a =
             List.head <| String.toList abbr
     in
-        s == a
+        case ( s, a ) of
+            ( Just s, Just a ) ->
+                s == a
+
+            _ ->
+                False
 
 
 wordSeparators : String
