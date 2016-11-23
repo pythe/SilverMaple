@@ -97,7 +97,22 @@ whileMoreCharacterInstances scoreIndex search string scores index =
 
 isNewWord : String -> Int -> Bool
 isNewWord string index =
-    False
+    let
+        previousChar =
+            String.toList string
+                |> List.getAt (index - 1)
+    in
+        case previousChar of
+            Just char ->
+                List.member char wordSeparators
+
+            Nothing ->
+                True
+
+
+wordSeparators : List Char
+wordSeparators =
+    String.toList " \t_-"
 
 
 isUpperCase : String -> Int -> Bool
@@ -134,8 +149,3 @@ started string abbr =
 
             _ ->
                 False
-
-
-wordSeparators : String
-wordSeparators =
-    " \t_-"
