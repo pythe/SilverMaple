@@ -5,11 +5,24 @@ import Test.Runner.Node exposing (run)
 import Test exposing (..)
 import Expect
 import SilverMaple
+import Scores exposing (..)
 
 
 main : Program Value
 main =
     run emit suite
+
+
+
+{-
+   Ideas for property tests:
+
+   Identical strings always return 1.0
+   Totally dissimilar strings always return 0.0
+   A query longer than the string returns 0.0
+
+
+-}
 
 
 suite : Test
@@ -97,37 +110,10 @@ port emit : ( String, Value ) -> Cmd msg
 
 expectedScore : List Float -> Float
 expectedScore charScores =
-    --(Basics.toFloat <| Basics.round <| sum / (Basics.toFloat <| List.length charScores) * 1000) / 1000
-    (List.length charScores
+    List.length charScores
         |> Basics.toFloat
         |> (/) (List.sum charScores)
         |> (*) 1000
         |> Basics.round
         |> Basics.toFloat
-    )
-        / 1000
-
-
-noMatch : Float
-noMatch =
-    0.0
-
-
-match : Float
-match =
-    1.0
-
-
-trailing : Float
-trailing =
-    0.8
-
-
-specialTrailing : Float
-specialTrailing =
-    0.9
-
-
-buffer : Float
-buffer =
-    0.85
+        |> (/) 1000
