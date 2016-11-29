@@ -58,7 +58,7 @@ scoreAll string search query searchIndex queryIndex scores allScores =
                 query
                     |> String.uncons
                     |> Maybe.withDefault ( '\x00', "" )
-                    |> fst
+                    |> Tuple.first
                     |> String.fromChar
 
             instances =
