@@ -1,6 +1,6 @@
 module SilverMaple exposing (score)
 
-{-| This module borrows heavily from [LiquidMetal](https://github.com/rmm5t/liquidmetal/)
+{-| This module borrows the matching algorithm from [LiquidMetal](https://github.com/rmm5t/liquidmetal/)
 
 -}
 
@@ -30,6 +30,7 @@ score text query =
                 |> List.map List.sum
                 |> List.maximum
                 |> Maybe.withDefault 0.0
+                |> (\n -> n / (toFloat <| String.length text))
 
 
 {-| ScoreAll takes:
